@@ -92,9 +92,23 @@ import java.util.regex.Pattern;
       Matcher matcher = SDP_LINE_PATTERN.matcher(line);
       if (!matcher.matches()) {
         Matcher sdpTagMatcher = SDP_LINE_WITH_EMPTY_VALUE_PATTERN.matcher(line);
-        if (sdpTagMatcher.matches() && Objects.equals(sdpTagMatcher.group(1), INFORMATION_TYPE)) {
-          // Allow and skip empty Session Information (tag 'i') attributes
-          continue;
+        if (sdpTagMatcher.matches()) {
+          String sdpType = sdpTagMatcher.group(1);
+          if (Objects.equals(sdpType, INFORMATION_TYPE)) {
+            // Allow and skip empty Session Information (tag 'i') attributes
+            continue;
+          }
+          if (Objects.equals(sdpType, SESSION_TYPE)) {
+            // Allow empty Session Name (tag 's') and treat it as "-" for compatibility with broken
+            // cameras. RFC 4566 Section 5.3.
+            sessionDescriptionBuilder.setSessionName("-");
+            continue;
+          }
+          if (Objects.equals(sdpType, ORIGIN_TYPE)) {
+            // Allow empty Origin (tag 'o') for compatibility with broken cameras.
+            sessionDescriptionBuilder.setOrigin("- 0 0 IN IP4 127.0.0.1");
+            continue;
+          }
         }
         throw ParserException.createForMalformedManifest(
             "Malformed SDP line: " + line, /* cause= */ null);
