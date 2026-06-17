@@ -382,7 +382,9 @@ import java.util.Objects;
 
     // fmtp format: RFC2327 Page 27.
     String[] fmtpComponents = Util.splitAtFirst(fmtpAttributeValue, " ");
-    checkArgument(fmtpComponents.length == 2, fmtpAttributeValue);
+    if (fmtpComponents.length != 2) {
+      return ImmutableMap.of();
+    }
 
     // Format of the parameter: RFC3640 Section 4.4.1:
     //   <parameter name>=<value>[; <parameter name>=<value>].
@@ -392,7 +394,9 @@ import java.util.Objects;
     for (String parameter : parameters) {
       // The parameter values can bear equal signs, so splitAtFirst must be used.
       String[] parameterPair = Util.splitAtFirst(parameter, "=");
-      formatParametersBuilder.put(parameterPair[0], parameterPair[1]);
+      if (parameterPair.length == 2) {
+        formatParametersBuilder.put(parameterPair[0].trim(), parameterPair[1].trim());
+      }
     }
     return formatParametersBuilder.buildOrThrow();
   }
