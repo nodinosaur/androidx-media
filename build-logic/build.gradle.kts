@@ -21,7 +21,9 @@ repositories {
 
 dependencies {
   implementation("androidx.media3.buildlogic:build-logic-settings")
-  implementation(libs.android.gradle.plugin)
-  implementation(libs.android.gradle.api)
-  implementation(libs.kotlin.gradle.plugin)
+  // Gradle 9.3+ pins org.jetbrains:annotations to the embedded Kotlin's 13.0 on the build script
+  // classpath, and AGP and KGP ask for 23.0.0. They are compile-time annotations: leave them out.
+  implementation(libs.android.gradle.plugin) { exclude(group = "org.jetbrains", module = "annotations") }
+  implementation(libs.android.gradle.api) { exclude(group = "org.jetbrains", module = "annotations") }
+  implementation(libs.kotlin.gradle.plugin) { exclude(group = "org.jetbrains", module = "annotations") }
 }
